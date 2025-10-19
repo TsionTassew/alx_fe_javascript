@@ -1,20 +1,16 @@
 // -------------------- Configuration --------------------
-const API_URL = 'https://your-api-url.com/api/quotes'; // Replace with your server URL
+const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock API
 const SYNC_INTERVAL = 60000; // 60 seconds
 
 // -------------------- Helper Functions --------------------
-
-// Load quotes from local storage
 function loadLocalQuotes() {
   return JSON.parse(localStorage.getItem('quotes')) || [];
 }
 
-// Save quotes to local storage
 function saveLocalQuotes(quotes) {
   localStorage.setItem('quotes', JSON.stringify(quotes));
 }
 
-// Display quotes in the DOM
 function displayQuotes(quotes) {
   const container = document.getElementById('quoteDisplay');
   container.innerHTML = '';
@@ -26,9 +22,14 @@ function displayQuotes(quotes) {
   });
 }
 
-// -------------------- Quote Management --------------------
+function showNotification(message) {
+  const notif = document.getElementById('notification');
+  notif.textContent = message;
+  notif.style.display = 'block';
+  setTimeout(() => (notif.style.display = 'none'), 3000);
+}
 
-// Add a new quote
+// -------------------- Quote Management --------------------
 function addQuote() {
   const textInput = document.getElementById('newQuoteText');
   const categoryInput = document.getElementById('newQuoteCategory');
@@ -38,7 +39,7 @@ function addQuote() {
 
   const quotes = loadLocalQuotes();
   const newQuote = {
-    id: Date.now(), // Unique ID based on timestamp
+    id: Date.now(),
     text,
     category,
     timestamp: new Date().toISOString(),
@@ -53,33 +54,38 @@ function addQuote() {
 }
 
 // -------------------- Server Interaction --------------------
-
-// Fetch quotes from server
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch(API_URL);
     if (!response.ok) throw new Error('Failed to fetch from server');
-    return await response.json();
+    const data = await response.json();
+    // Map JSONPlaceholder posts to quote format
+    return data.map(post => ({
+      id: post.id,
+      text: post.title,
+      category: 'server', // default category
+      timestamp: new Date().toISOString(),
+    }));
   } catch (error) {
     console.error('Server fetch error:', error);
     return [];
   }
 }
 
-// Post a quote to server
 async function postQuoteToServer(quote) {
   try {
     await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(quote),
+      body: JSON.stringify({ title: quote.text, body: quote.category }),
     });
   } catch (error) {
     console.error('Server POST error:', error);
+    showNotification('Error syncing to server!');
   }
 }
 
-// Resolve conflicts (keep most recent quote)
+// -------------------- Conflict Resolution --------------------
 function resolveConflicts(localQuotes, serverQuotes) {
   const merged = serverQuotes.map(serverQuote => {
     const localQuote = localQuotes.find(q => q.id === serverQuote.id);
@@ -91,7 +97,6 @@ function resolveConflicts(localQuotes, serverQuotes) {
     return serverQuote;
   });
 
-  // Include local quotes not on server
   localQuotes.forEach(localQuote => {
     if (!merged.some(q => q.id === localQuote.id)) merged.push(localQuote);
   });
@@ -99,9 +104,8 @@ function resolveConflicts(localQuotes, serverQuotes) {
   return merged;
 }
 
-// -------------------- Sync Logic --------------------
-
-async function syncWithServer() {
+// -------------------- Sync Function --------------------
+async function syncQuotes() {
   const localQuotes = loadLocalQuotes();
   const serverQuotes = await fetchQuotesFromServer();
 
@@ -109,7 +113,7 @@ async function syncWithServer() {
   saveLocalQuotes(mergedQuotes);
   displayQuotes(mergedQuotes);
 
-  // Push any local-only quotes to server
+  // Push local-only quotes to server
   const localOnly = localQuotes.filter(
     q => !serverQuotes.some(sq => sq.id === q.id)
   );
@@ -117,15 +121,16 @@ async function syncWithServer() {
     await postQuoteToServer(quote);
   }
 
-  console.log('Sync complete:', new Date().toLocaleTimeString());
+  if (localOnly.length > 0 || serverQuotes.length > 0) {
+    showNotification('Quotes synced successfully!');
+  }
 }
 
 // -------------------- Initialization --------------------
-
 document.getElementById('newQuoteButton').addEventListener('click', addQuote);
-document.getElementById('syncButton').addEventListener('click', syncWithServer);
+document.getElementById('syncButton').addEventListener('click', syncQuotes);
 
 // Initial load
 displayQuotes(loadLocalQuotes());
-syncWithServer(); // Initial sync
-setInterval(syncWithServer, SYNC_INTERVAL);
+syncQuotes();
+setInterval(syncQuotes, SYNC_INTERVAL);
