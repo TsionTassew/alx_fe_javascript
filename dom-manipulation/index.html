@@ -1,66 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Quote Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
-      text-align: center;
-      margin: 40px;
-    }
-    h1 {
-      color: #333;
-    }
-    #quoteDisplay {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      margin: 20px auto;
-      width: 60%;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      font-size: 1.2rem;
-    }
-    #categoryDisplay {
-      font-style: italic;
-      color: #777;
-    }
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      background: #007bff;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    input {
-      margin: 5px;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
 
-  <div id="quoteDisplay">Click "Show New Quote" to begin!</div>
-  <p id="categoryDisplay"></p>
+  <div id="quoteDisplay" class="quote-box">
+    <p id="quoteText">Click the button to see a quote!</p>
+    <p id="quoteCategory"></p>
+  </div>
 
-  <button id="newQuote">Show New Quote</button>
+  <button id="newQuoteBtn">Show New Quote</button>
 
   <h3>Add a New Quote</h3>
-  <div>
-    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-    <button id="addQuoteBtn">Add Quote</button>
-  </div>
+  <form id="addQuoteForm">
+    <input type="text" id="newQuoteText" placeholder="Enter quote" required />
+    <input type="text" id="newQuoteCategory" placeholder="Enter category" required />
+    <button type="submit">Add Quote</button>
+  </form>
+
+  <h3>Filter Quotes by Category</h3>
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <option value="all">All Categories</option>
+  </select>
 
   <script src="script.js"></script>
 </body>
