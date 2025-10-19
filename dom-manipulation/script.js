@@ -1,8 +1,17 @@
 // -------------------- Configuration --------------------
-const API_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock API
-const SYNC_INTERVAL = 60000; // 60 seconds
+const API_URL = 'https://jsonplaceholder.typicode.com/posts';
+const SYNC_INTERVAL = 60000;
 
-// -------------------- Helper Functions --------------------
+// -------------------- UI Notifications --------------------
+function showNotification(message, type = 'success') {
+  const notif = document.getElementById('notification');
+  notif.textContent = message;
+  notif.style.display = 'block';
+  notif.style.backgroundColor = type === 'error' ? '#f44336' : '#4caf50';
+  setTimeout(() => (notif.style.display = 'none'), 4000);
+}
+
+// -------------------- Local Storage --------------------
 function loadLocalQuotes() {
   return JSON.parse(localStorage.getItem('quotes')) || [];
 }
@@ -11,6 +20,7 @@ function saveLocalQuotes(quotes) {
   localStorage.setItem('quotes', JSON.stringify(quotes));
 }
 
+// -------------------- Display --------------------
 function displayQuotes(quotes) {
   const container = document.getElementById('quoteDisplay');
   container.innerHTML = '';
@@ -20,13 +30,6 @@ function displayQuotes(quotes) {
     div.textContent = `"${quote.text}" — ${quote.category}`;
     container.appendChild(div);
   });
-}
-
-function showNotification(message) {
-  const notif = document.getElementById('notification');
-  notif.textContent = message;
-  notif.style.display = 'block';
-  setTimeout(() => (notif.style.display = 'none'), 3000);
 }
 
 // -------------------- Quote Management --------------------
@@ -51,6 +54,7 @@ function addQuote() {
 
   textInput.value = '';
   categoryInput.value = '';
+  showNotification('Quote added locally!');
 }
 
 // -------------------- Server Interaction --------------------
@@ -59,15 +63,15 @@ async function fetchQuotesFromServer() {
     const response = await fetch(API_URL);
     if (!response.ok) throw new Error('Failed to fetch from server');
     const data = await response.json();
-    // Map JSONPlaceholder posts to quote format
     return data.map(post => ({
       id: post.id,
       text: post.title,
-      category: 'server', // default category
+      category: 'server',
       timestamp: new Date().toISOString(),
     }));
   } catch (error) {
     console.error('Server fetch error:', error);
+    showNotification('Failed to fetch quotes from server', 'error');
     return [];
   }
 }
@@ -81,15 +85,18 @@ async function postQuoteToServer(quote) {
     });
   } catch (error) {
     console.error('Server POST error:', error);
-    showNotification('Error syncing to server!');
+    showNotification('Failed to sync local quotes', 'error');
   }
 }
 
 // -------------------- Conflict Resolution --------------------
 function resolveConflicts(localQuotes, serverQuotes) {
+  let conflictsResolved = false;
+
   const merged = serverQuotes.map(serverQuote => {
     const localQuote = localQuotes.find(q => q.id === serverQuote.id);
     if (localQuote) {
+      conflictsResolved = true;
       return new Date(localQuote.timestamp) > new Date(serverQuote.timestamp)
         ? localQuote
         : serverQuote;
@@ -101,6 +108,7 @@ function resolveConflicts(localQuotes, serverQuotes) {
     if (!merged.some(q => q.id === localQuote.id)) merged.push(localQuote);
   });
 
+  if (conflictsResolved) showNotification('Conflicts resolved during sync');
   return merged;
 }
 
@@ -121,16 +129,13 @@ async function syncQuotes() {
     await postQuoteToServer(quote);
   }
 
-  if (localOnly.length > 0 || serverQuotes.length > 0) {
-    showNotification('Quotes synced successfully!');
-  }
+  showNotification('Quotes synced with server!');
 }
 
 // -------------------- Initialization --------------------
 document.getElementById('newQuoteButton').addEventListener('click', addQuote);
 document.getElementById('syncButton').addEventListener('click', syncQuotes);
 
-// Initial load
 displayQuotes(loadLocalQuotes());
 syncQuotes();
 setInterval(syncQuotes, SYNC_INTERVAL);
