@@ -2,42 +2,75 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic Quote Generator</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dynamic Quote Generator — Category Filter</title>
+ <link rel="stylesheet" href="style.css" />
+ <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #222;
+      text-align: center;
+      margin: 32px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 16px auto;
+      max-width: 720px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+    #quoteDisplay { font-size: 1.25rem; padding: 8px 12px; }
+    #categoryDisplay { font-style: italic; color: #666; margin-top: 6px; }
+    .controls { margin-top: 12px; }
+    select, button, input[type="file"] {
+      margin: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #fff;
+      cursor: pointer;
+    }
+    input[type="text"] {
+      padding: 8px;
+      margin: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 220px;
+    }
+    .muted { color: #666; font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-  <h1>Dynamic Quote Generator</h1>
+  <div class="card">
+    <h1>Dynamic Quote Generator</h1>
 
-  <!-- Quote Display Area -->
-  <div id="quoteDisplay">
-    <p id="quoteText">Click “Show New Quote” to begin!</p>
-    <p id="quoteCategory"></p>
+    <div>
+      <label for="categoryFilter"><strong>Filter by Category:</strong></label>
+      <select id="categoryFilter"></select>
+    </div>
+
+    <div id="quoteDisplay">Click "Show New Quote" to begin!</div>
+    <div id="categoryDisplay"></div>
+    <div class="muted" id="lastViewedDisplay"></div>
+
+    <div class="controls">
+      <button id="newQuote">Show New Quote</button>
+      <button id="exportBtn">Export Quotes (JSON)</button>
+      <button id="clearStorageBtn">Clear Local Storage</button>
+      <input id="importFile" type="file" accept=".json" />
+    </div>
   </div>
 
-  <!-- Button to Show a Random Quote -->
-  <button id="newQuoteBtn">Show New Quote</button>
-
-  <!-- Add Quote Form -->
-  <h3>Add a New Quote</h3>
-  <form id="addQuoteForm">
-    <input type="text" id="newQuoteText" placeholder="Enter quote" required />
-    <input type="text" id="newQuoteCategory" placeholder="Enter category" required />
-    <button type="submit">Add Quote</button>
-  </form>
-
-  <!-- Category Filter -->
-  <h3>Filter Quotes by Category</h3>
-  <select id="categoryFilter" onchange="filterQuotes()">
-    <option value="all">All Categories</option>
-  </select>
-
-  <!-- JSON Import/Export -->
-  <h3>Import / Export Quotes (JSON)</h3>
-  <button id="exportBtn" onclick="exportToJsonFile()">Export Quotes</button>
-  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+  <div class="card">
+    <h3>Add a New Quote</h3>
+    <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+    <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+    <button id="addQuoteBtn">Add Quote</button>
+    <p class="muted">Quotes and categories are saved automatically to local storage.</p>
+  </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
