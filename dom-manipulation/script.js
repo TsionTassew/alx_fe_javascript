@@ -23,6 +23,7 @@ function displayRandomQuote() {
   if (randomQuote) {
     quoteText.textContent = randomQuote.text;
     quoteCategory.textContent = `— ${randomQuote.category}`;
+    sessionStorage.setItem("lastViewedQuote", JSON.stringify(randomQuote));
   } else {
     quoteText.textContent = "No quotes available for this category.";
     quoteCategory.textContent = "";
@@ -77,6 +78,42 @@ function createAddQuoteForm() {
   });
 }
 
+// ====== Function: Export Quotes to JSON File ======
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "quotes.json";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ====== Function: Import Quotes from JSON File ======
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function (e) {
+    try {
+      const importedQuotes = JSON.parse(e.target.result);
+      if (Array.isArray(importedQuotes)) {
+        quotes.push(...importedQuotes);
+        localStorage.setItem("quotes", JSON.stringify(quotes));
+        populateCategories();
+        displayRandomQuote();
+        alert("Quotes imported successfully!");
+      } else {
+        alert("Invalid JSON format.");
+      }
+    } catch (error) {
+      alert("Error reading file.");
+    }
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
 // ====== Initialize App ======
 document.addEventListener("DOMContentLoaded", function () {
   populateCategories();
@@ -84,4 +121,3 @@ document.addEventListener("DOMContentLoaded", function () {
   createAddQuoteForm();
   document.getElementById("newQuoteBtn").addEventListener("click", displayRandomQuote);
 });
-

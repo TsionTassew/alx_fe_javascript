@@ -32,6 +32,12 @@
     <option value="all">All Categories</option>
   </select>
 
+  <!-- JSON Import/Export -->
+  <h3>Import / Export Quotes (JSON)</h3>
+  <button id="exportBtn" onclick="exportToJsonFile()">Export Quotes</button>
+  <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+
   <script src="script.js"></script>
 </body>
 </html>
+
