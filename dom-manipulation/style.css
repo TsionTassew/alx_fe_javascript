@@ -1,0 +1,34 @@
+  body {
+      font-family: Arial, sans-serif;
+      background: #d9c4c4;
+      color: #702020;
+      text-align: center;
+      margin: 32px;
+    }
+    .card {
+      background: #9a3030;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 16px auto;
+      max-width: 720px;
+      box-shadow: 0 6px 18px rgba(119, 47, 47, 0.06);
+    }
+    #quoteDisplay { font-size: 1.25rem; padding: 8px 12px; }
+    #categoryDisplay { font-style: italic; color: #a95454; margin-top: 6px; }
+    .controls { margin-top: 12px; }
+    button, input[type="file"] {
+      margin: 6px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #9a3030;
+      background: lab(63.21% 37.81 16.83);
+      cursor: pointer;
+    }
+    input[type="text"] {
+      padding: 8px;
+      margin: 6px;
+      border-radius: 8px;
+      border: 1px solid #7c2222;
+      width: 220px;
+    }
+    .muted { color: #892424; font-size: 0.9rem; }
